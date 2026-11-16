@@ -61,16 +61,22 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <targetClasses>
-                        <param>com.example.haunted.model.*</param>
-                        <param>com.example.haunted.rules.*</param>
-                        <param>com.example.haunted.events.*</param>
-                    </targetClasses>
-                    <targetTests>
-                        <param>com.example.haunted.model.*Test</param>
-                        <param>com.example.haunted.rules.*Test</param>
-                        <param>com.example.haunted.events.*Test</param>
-                    </targetTests>
+	                 <targetClasses>
+					    <param>com.example.haunted.model.*</param>
+					    <param>com.example.haunted.rules.*</param>
+					    <param>com.example.haunted.events.*</param>
+					    <param>com.example.haunted.engine.*</param>
+					    <param>com.example.haunted.config.*</param>
+					    <param>com.example.haunted</param>
+					</targetClasses>
+					<targetTests>
+					    <param>com.example.haunted.model.*Test</param>
+					    <param>com.example.haunted.rules.*Test</param>
+					    <param>com.example.haunted.events.*Test</param>
+					    <param>com.example.haunted.engine.*Test</param>
+					    <param>com.example.haunted.config.*Test</param>
+					    <param>com.example.haunted.main.*Test</param>
+					</targetTests>
                     <failWhenNoMutations>false</failWhenNoMutations>
                     <outputFormats>
                         <param>HTML</param>
