@@ -1,31 +1,16 @@
-# Haunted University Basement
+No special instructions for running tests: used Eclipse Maven and PITEST as shown in class.
 
-A deterministic Java 17 Maven backend project designed for students to write JUnit tests.
+# Reporting
+The coverage report can be found in coverage_report.html.
+The pitest mutation report can be found in pitest_report
 
-## Goal
-Recover the **Lost Gradebook** and defeat the **Final Exam Phantom**.
+# AI usage disclosure:
+Prompts:
+- Draft tests for these classes (provided with the game engine and config), do not repeat tests from the other tests (provided with the model, events, and rules tests).
+    - Note: this did not result in immediate 100% coverage or mutation kill rate. We read through all the code it produced and then improved        by hand where required
+- Add comments to these files
+    - AI improved commenting on the files we wrote ourselves
+- Walk me through running PIT mutation tests on Eclipse
+    - Just Eclipse UI help
+- Why are these lines in DungeonFactory: private DungeonFactory() {} not covered in testing? How do I make sure they are covered? (PITEST counted as not covered lines, coverage counted as covered)
 
-## Design notes
-- No console-driven gameplay loop is required for grading.
-- The primary testing surface is `GameEngine`.
-- Combat, traps, loot, and unlocking are deterministic.
-- Students should write JUnit tests for movement, combat, inventory, traps, room unlocking, and quest progression.
-
-## Suggested student tasks
-- Write unit tests for `DamageCalculator`, `TrapResolver`, and `QuestTracker`
-- Write integration tests against `GameEngine`
-- Test happy paths and edge cases
-- Aim for high line and branch coverage
-
-## Main API
-- `move(Direction direction)`
-- `pickUpItem(String itemName)`
-- `equipItem(String itemName)`
-- `useItem(String itemName)`
-- `unlockRoom(Direction direction)`
-- `attack(String monsterName)`
-
-## Win condition
-The game is won only when both are true:
-1. The player has obtained the `Lost Gradebook`
-2. The `Final Exam Phantom` has been defeated
