@@ -68,4 +68,13 @@ public class DungeonFactoryTest {
         assertSame(server, vault.getExit(Direction.SOUTH));
         assertSame(vault, finalChamber.getExit(Direction.SOUTH));
     }
+    
+    @Test
+    @DisplayName("DungeonFactory is a utility class with a private constructor")
+    void testPrivateConstructor() throws Exception {
+        java.lang.reflect.Constructor<DungeonFactory> c = DungeonFactory.class.getDeclaredConstructor();
+        assertTrue(java.lang.reflect.Modifier.isPrivate(c.getModifiers()));
+        c.setAccessible(true);
+        assertNotNull(c.newInstance());
+    }
 }
