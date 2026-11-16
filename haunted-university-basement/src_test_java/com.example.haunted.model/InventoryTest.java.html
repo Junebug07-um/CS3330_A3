@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InventoryTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">InventoryTest.java</span></div><h1>InventoryTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.model;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+<span class="fc" id="L18">public class InventoryTest {</span>
+
+    private Inventory inventory;
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L24">        inventory = new Inventory(2);</span>
+<span class="fc" id="L25">    }</span>
+
+    @Test
+    @DisplayName(&quot;Inventory initial state matches capacity&quot;)
+    void testInitialState() {
+<span class="fc" id="L30">        assertEquals(2, inventory.getCapacity());</span>
+<span class="fc" id="L31">        assertFalse(inventory.isFull());</span>
+<span class="fc" id="L32">        assertEquals(0, inventory.getItems().size());</span>
+<span class="fc" id="L33">    }</span>
+
+    @Test
+    @DisplayName(&quot;Adding items up to capacity and hitting boundary&quot;)
+    void testAddItemCapacityBoundary() {
+<span class="fc" id="L38">        Item item1 = new QuestItem(&quot;Note&quot;, &quot;A scrap of paper&quot;);</span>
+<span class="fc" id="L39">        Item item2 = new QuestItem(&quot;Pencil&quot;, &quot;A yellow pencil&quot;);</span>
+<span class="fc" id="L40">        Item overflow = new QuestItem(&quot;Eraser&quot;, &quot;A pink eraser&quot;);</span>
+
+<span class="fc" id="L42">        assertTrue(inventory.addItem(item1));</span>
+<span class="fc" id="L43">        assertFalse(inventory.isFull());</span>
+
+<span class="fc" id="L45">        assertTrue(inventory.addItem(item2));</span>
+<span class="fc" id="L46">        assertTrue(inventory.isFull()); // Size == capacity</span>
+
+        // Attempting to exceed capacity
+<span class="fc" id="L49">        assertFalse(inventory.addItem(overflow));</span>
+<span class="fc" id="L50">        assertEquals(2, inventory.getItems().size());</span>
+<span class="fc" id="L51">    }</span>
+
+    @ParameterizedTest
+    @ValueSource(strings = {&quot;Flashlight&quot;, &quot;flashlight&quot;, &quot;FLASHLIGHT&quot;})
+    @DisplayName(&quot;Find and contains item matches case-insensitively&quot;)
+    void testFindAndContainsCaseInsensitive(String queryName) {
+<span class="fc" id="L57">        Item item = new QuestItem(&quot;Flashlight&quot;, &quot;A heavy flashlight&quot;);</span>
+<span class="fc" id="L58">        inventory.addItem(item);</span>
+
+<span class="fc" id="L60">        assertTrue(inventory.contains(queryName));</span>
+<span class="fc" id="L61">        Optional&lt;Item&gt; found = inventory.findItem(queryName);</span>
+<span class="fc" id="L62">        assertTrue(found.isPresent());</span>
+<span class="fc" id="L63">        assertEquals(&quot;Flashlight&quot;, found.get().getName());</span>
+<span class="fc" id="L64">    }</span>
+
+    @Test
+    @DisplayName(&quot;Find and contains item return negative when item absent&quot;)
+    void testFindAndContainsMissingItem() {
+<span class="fc" id="L69">        assertFalse(inventory.contains(&quot;Ghost Radar&quot;));</span>
+<span class="fc" id="L70">        assertTrue(inventory.findItem(&quot;Ghost Radar&quot;).isEmpty());</span>
+<span class="fc" id="L71">    }</span>
+
+    @Test
+    @DisplayName(&quot;Remove item successfully returns item and decreases inventory size&quot;)
+    void testRemoveExistingItem() {
+<span class="fc" id="L76">        Item item = new QuestItem(&quot;Key&quot;, &quot;Brass key&quot;);</span>
+<span class="fc" id="L77">        inventory.addItem(item);</span>
+
+<span class="fc" id="L79">        Item removed = inventory.removeItem(&quot;key&quot;);</span>
+<span class="fc" id="L80">        assertNotNull(removed);</span>
+<span class="fc" id="L81">        assertEquals(&quot;Key&quot;, removed.getName());</span>
+<span class="fc" id="L82">        assertFalse(inventory.contains(&quot;Key&quot;));</span>
+<span class="fc" id="L83">        assertEquals(0, inventory.getItems().size());</span>
+<span class="fc" id="L84">    }</span>
+
+    @Test
+    @DisplayName(&quot;Remove absent item returns null without altering state&quot;)
+    void testRemoveNonExistentItem() {
+<span class="fc" id="L89">        Item item = new QuestItem(&quot;Key&quot;, &quot;Brass key&quot;);</span>
+<span class="fc" id="L90">        inventory.addItem(item);</span>
+
+<span class="fc" id="L92">        Item removed = inventory.removeItem(&quot;Missing&quot;);</span>
+<span class="fc" id="L93">        assertNull(removed);</span>
+<span class="fc" id="L94">        assertEquals(1, inventory.getItems().size());</span>
+<span class="fc" id="L95">    }</span>
+
+    @Test
+    @DisplayName(&quot;getItems() returns an unmodifiable list&quot;)
+    void testUnmodifiableItemsList() {
+<span class="pc" id="L100">        assertThrows(UnsupportedOperationException.class, () -&gt; inventory.getItems().add(null));</span>
+<span class="fc" id="L101">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

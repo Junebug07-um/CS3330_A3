@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>GameEngineTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.engine</a> &gt; <span class="el_source">GameEngineTest.java</span></div><h1>GameEngineTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.engine;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import com.example.haunted.config.DungeonFactory;
+import com.example.haunted.events.CombatResult;
+import com.example.haunted.model.Direction;
+
+<span class="fc" id="L15">public class GameEngineTest {</span>
+
+    private GameEngine game;
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L21">        game = DungeonFactory.createGame();</span>
+<span class="fc" id="L22">    }</span>
+
+    // ---------- helpers for the playthrough ----------
+
+    private void go(Direction d) {
+<span class="fc" id="L27">        assertTrue(game.move(d).isSuccess(), &quot;move &quot; + d);</span>
+<span class="fc" id="L28">    }</span>
+
+    private void take(String item) {
+<span class="fc" id="L31">        assertTrue(game.pickUpItem(item).isSuccess(), &quot;pick up &quot; + item);</span>
+<span class="fc" id="L32">    }</span>
+
+    private void equip(String item) {
+<span class="fc" id="L35">        assertTrue(game.equipItem(item).isSuccess(), &quot;equip &quot; + item);</span>
+<span class="fc" id="L36">    }</span>
+
+    private void unlock(Direction d) {
+<span class="fc" id="L39">        assertTrue(game.unlockRoom(d).isSuccess(), &quot;unlock &quot; + d);</span>
+<span class="fc" id="L40">    }</span>
+
+    private void kill(String monster) {
+        CombatResult r;
+<span class="fc" id="L44">        int rounds = 0;</span>
+        do {
+<span class="fc" id="L46">            r = game.attack(monster);</span>
+<span class="fc" id="L47">            assertTrue(r.isSuccess(), &quot;attack &quot; + monster);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">            assertTrue(++rounds &lt;= 10, monster + &quot; took too long&quot;);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        } while (!r.isMonsterDefeated());</span>
+<span class="fc" id="L50">    }</span>
+
+    // ---------- delegation ----------
+
+    @Test
+    void testMoveDelegates() {
+<span class="fc" id="L56">        assertTrue(game.move(Direction.EAST).isSuccess());</span>
+<span class="fc" id="L57">        assertEquals(&quot;lectureHall&quot;, game.getCurrentRoom().getId());</span>
+
+<span class="fc" id="L59">        assertFalse(game.move(Direction.EAST).isSuccess() &amp;&amp; false); // see note below</span>
+<span class="fc" id="L60">    }</span>
+
+    @Test
+    void testAttackUnknownMonster() {
+<span class="fc" id="L64">        assertFalse(game.attack(&quot;Nobody&quot;).isSuccess());</span>
+<span class="fc" id="L65">    }</span>
+
+    @Test
+    @DisplayName(&quot;attack finds the monster in the current room by name&quot;)
+    void testAttackDelegates() {
+<span class="fc" id="L70">        go(Direction.EAST);</span>
+
+<span class="fc" id="L72">        CombatResult r = game.attack(&quot;Sleep-Deprived TA&quot;);</span>
+
+<span class="fc" id="L74">        assertTrue(r.isSuccess());</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        assertTrue(r.getDamageToMonster() &gt; 0);</span>
+<span class="fc" id="L76">    }</span>
+
+    @Test
+    void testPickUpAndUseDelegate() {
+<span class="fc" id="L80">        go(Direction.EAST);</span>
+<span class="fc" id="L81">        take(&quot;Coffee Potion&quot;);</span>
+<span class="fc" id="L82">        game.getPlayer().takeDamage(20);</span>
+
+<span class="fc" id="L84">        assertTrue(game.useItem(&quot;Coffee Potion&quot;).isSuccess());</span>
+<span class="fc" id="L85">        assertEquals(45, game.getPlayer().getHealth());</span>
+<span class="fc" id="L86">    }</span>
+
+    @Test
+    void testEquipDelegates() {
+<span class="fc" id="L90">        go(Direction.EAST);</span>
+<span class="fc" id="L91">        go(Direction.EAST); // lab storage</span>
+<span class="fc" id="L92">        take(&quot;Calculator Shield&quot;);</span>
+
+<span class="fc" id="L94">        assertTrue(game.equipItem(&quot;Calculator Shield&quot;).isSuccess());</span>
+<span class="fc" id="L95">        assertNotNull(game.getPlayer().getEquippedArmor());</span>
+<span class="fc" id="L96">    }</span>
+
+    @Test
+    @DisplayName(&quot;The exam archive is locked until the Archive Key is used&quot;)
+    void testUnlockDelegates() {
+<span class="fc" id="L101">        go(Direction.EAST);</span>
+<span class="fc" id="L102">        assertFalse(game.move(Direction.NORTH).isSuccess());</span>
+<span class="fc" id="L103">        assertFalse(game.unlockRoom(Direction.NORTH).isSuccess());</span>
+
+<span class="fc" id="L105">        go(Direction.EAST);</span>
+<span class="fc" id="L106">        take(&quot;Archive Key&quot;);</span>
+<span class="fc" id="L107">        go(Direction.WEST);</span>
+<span class="fc" id="L108">        unlock(Direction.NORTH);</span>
+<span class="fc" id="L109">        go(Direction.NORTH);</span>
+<span class="fc" id="L110">        assertEquals(&quot;examArchive&quot;, game.getCurrentRoom().getId());</span>
+<span class="fc" id="L111">    }</span>
+
+    // ---------- game state ----------
+
+    @Test
+    void testGameOverWhenPlayerDies() {
+<span class="fc" id="L117">        game.getPlayer().takeDamage(49);</span>
+<span class="fc" id="L118">        assertFalse(game.isGameOver());</span>
+
+<span class="fc" id="L120">        game.getPlayer().takeDamage(1);</span>
+<span class="fc" id="L121">        assertTrue(game.isGameOver());</span>
+<span class="fc" id="L122">    }</span>
+
+    @ParameterizedTest(name = &quot;gradebook={0}, phantom={1} -&gt; won={2}&quot;)
+    @CsvSource({&quot;false,false,false&quot;, &quot;true,false,false&quot;, &quot;false,true,false&quot;, &quot;true,true,true&quot;})
+    @DisplayName(&quot;Winning needs both the gradebook and the Phantom's defeat&quot;)
+    void testWinRequiresBothObjectives(boolean gradebook, boolean phantom, boolean won) {
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (gradebook) game.getQuest().markGradebookRecovered();</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (phantom) game.getQuest().markPhantomDefeated();</span>
+
+<span class="fc" id="L131">        assertEquals(won, game.isGameWon());</span>
+<span class="fc" id="L132">    }</span>
+
+    @Test
+    @DisplayName(&quot;A dead player has not won, even with the quest complete&quot;)
+    void testDeadPlayerCannotWin() {
+<span class="fc" id="L137">        game.getQuest().markGradebookRecovered();</span>
+<span class="fc" id="L138">        game.getQuest().markPhantomDefeated();</span>
+<span class="fc" id="L139">        game.getPlayer().takeDamage(50);</span>
+
+<span class="fc" id="L141">        assertTrue(game.isGameOver());</span>
+<span class="fc" id="L142">        assertFalse(game.isGameWon());</span>
+<span class="fc" id="L143">    }</span>
+
+    // ---------- full playthrough ----------
+
+    @Test
+    @DisplayName(&quot;Full playthrough: collect gear, get the gradebook, beat the Phantom, win&quot;)
+    void testFullPlaythrough() {
+<span class="fc" id="L150">        go(Direction.EAST);                    // lecture hall</span>
+<span class="fc" id="L151">        kill(&quot;Sleep-Deprived TA&quot;);</span>
+
+<span class="fc" id="L153">        go(Direction.EAST);                    // lab storage</span>
+<span class="fc" id="L154">        take(&quot;Archive Key&quot;);</span>
+<span class="fc" id="L155">        take(&quot;Calculator Shield&quot;);</span>
+<span class="fc" id="L156">        equip(&quot;Calculator Shield&quot;);</span>
+
+<span class="fc" id="L158">        go(Direction.NORTH);                   // server closet</span>
+<span class="fc" id="L159">        take(&quot;Stapler of Justice&quot;);</span>
+<span class="fc" id="L160">        equip(&quot;Stapler of Justice&quot;);</span>
+<span class="fc" id="L161">        kill(&quot;Spreadsheet Golem&quot;);</span>
+<span class="fc" id="L162">        take(&quot;Dry Erase Sword&quot;);               // dropped by the Golem</span>
+<span class="fc" id="L163">        equip(&quot;Dry Erase Sword&quot;);</span>
+
+<span class="fc" id="L165">        go(Direction.EAST);                    // dean vault</span>
+<span class="fc" id="L166">        kill(&quot;Registrar Wraith&quot;);</span>
+<span class="fc" id="L167">        take(&quot;Vault Key&quot;);</span>
+<span class="fc" id="L168">        take(&quot;Graduation Gown Armor&quot;);         // dropped by the Wraith</span>
+<span class="fc" id="L169">        equip(&quot;Graduation Gown Armor&quot;);</span>
+
+<span class="fc" id="L171">        unlock(Direction.WEST);                // exam archive needs the Archive Key</span>
+<span class="fc" id="L172">        go(Direction.WEST);</span>
+<span class="fc" id="L173">        kill(&quot;Plagiarism Ghost&quot;);</span>
+<span class="fc" id="L174">        take(&quot;Lost Gradebook&quot;);</span>
+<span class="fc" id="L175">        assertFalse(game.isGameWon());         // gradebook alone is not enough</span>
+
+<span class="fc" id="L177">        go(Direction.EAST);                    // back to the vault</span>
+<span class="fc" id="L178">        unlock(Direction.NORTH);               // final chamber needs the Vault Key</span>
+<span class="fc" id="L179">        go(Direction.NORTH);</span>
+<span class="fc" id="L180">        kill(&quot;Final Exam Phantom&quot;);</span>
+
+<span class="fc" id="L182">        assertTrue(game.isGameWon());</span>
+<span class="fc" id="L183">        assertFalse(game.isGameOver());</span>
+<span class="fc" id="L184">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

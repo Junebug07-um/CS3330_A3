@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ItemHierarchyTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">ItemHierarchyTest.java</span></div><h1>ItemHierarchyTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.model;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+<span class="fc" id="L12">public class ItemHierarchyTest {</span>
+
+    @Test
+    @DisplayName(&quot;Weapon initializes, exposes attack bonus, and enforces null guards&quot;)
+    void testWeapon() {
+<span class="fc" id="L17">        Weapon sword = new Weapon(&quot;Steel Sword&quot;, &quot;A sharp blade&quot;, 15);</span>
+
+<span class="fc" id="L19">        assertEquals(&quot;Steel Sword&quot;, sword.getName());</span>
+<span class="fc" id="L20">        assertEquals(&quot;A sharp blade&quot;, sword.getDescription());</span>
+<span class="fc" id="L21">        assertEquals(15, sword.getAttackBonus());</span>
+<span class="fc" id="L22">        assertEquals(&quot;Steel Sword&quot;, sword.toString());</span>
+<span class="fc" id="L23">        assertTrue(sword instanceof Equippable);</span>
+<span class="fc" id="L24">        assertTrue(sword instanceof Item);</span>
+
+<span class="pc" id="L26">        assertThrows(NullPointerException.class, () -&gt; new Weapon(null, &quot;A sharp blade&quot;, 15));</span>
+<span class="pc" id="L27">        assertThrows(NullPointerException.class, () -&gt; new Weapon(&quot;Steel Sword&quot;, null, 15));</span>
+<span class="fc" id="L28">    }</span>
+
+    @Test
+    @DisplayName(&quot;Armor initializes, exposes defense bonus, and enforces null guards&quot;)
+    void testArmor() {
+<span class="fc" id="L33">        Armor shield = new Armor(&quot;Iron Shield&quot;, &quot;A heavy shield&quot;, 10);</span>
+
+<span class="fc" id="L35">        assertEquals(&quot;Iron Shield&quot;, shield.getName());</span>
+<span class="fc" id="L36">        assertEquals(&quot;A heavy shield&quot;, shield.getDescription());</span>
+<span class="fc" id="L37">        assertEquals(10, shield.getDefenseBonus());</span>
+<span class="fc" id="L38">        assertEquals(&quot;Iron Shield&quot;, shield.toString());</span>
+<span class="fc" id="L39">        assertTrue(shield instanceof Equippable);</span>
+<span class="fc" id="L40">        assertTrue(shield instanceof Item);</span>
+
+<span class="pc" id="L42">        assertThrows(NullPointerException.class, () -&gt; new Armor(null, &quot;A heavy shield&quot;, 10));</span>
+<span class="pc" id="L43">        assertThrows(NullPointerException.class, () -&gt; new Armor(&quot;Iron Shield&quot;, null, 10));</span>
+<span class="fc" id="L44">    }</span>
+
+    @ParameterizedTest(name = &quot;Initial HP=50, Max HP=100, Heal={0} -&gt; Result HP={1}&quot;)
+    @CsvSource({
+        &quot;20, 70&quot;,
+        &quot;50, 100&quot;,
+        &quot;75, 100&quot;
+    })
+    @DisplayName(&quot;Potion heals player accurately via Usable interface&quot;)
+    void testPotionUse(int healAmount, int expectedHp) {
+<span class="fc" id="L54">        Potion potion = new Potion(&quot;Health Elixir&quot;, &quot;Restores HP&quot;, healAmount);</span>
+
+<span class="fc" id="L56">        assertEquals(&quot;Health Elixir&quot;, potion.getName());</span>
+<span class="fc" id="L57">        assertEquals(&quot;Restores HP&quot;, potion.getDescription());</span>
+<span class="fc" id="L58">        assertEquals(healAmount, potion.getHealingAmount());</span>
+<span class="fc" id="L59">        assertEquals(&quot;Health Elixir&quot;, potion.toString());</span>
+<span class="fc" id="L60">        assertTrue(potion instanceof Usable);</span>
+<span class="fc" id="L61">        assertTrue(potion instanceof Item);</span>
+
+<span class="fc" id="L63">        Player player = new Player(&quot;Hero&quot;, 100, 10, 5, new Inventory(5));</span>
+<span class="fc" id="L64">        player.takeDamage(50);</span>
+<span class="fc" id="L65">        potion.use(player);</span>
+<span class="fc" id="L66">        assertEquals(expectedHp, player.getHealth());</span>
+
+<span class="pc" id="L68">        assertThrows(NullPointerException.class, () -&gt; new Potion(null, &quot;Restores HP&quot;, healAmount));</span>
+<span class="pc" id="L69">        assertThrows(NullPointerException.class, () -&gt; new Potion(&quot;Health Elixir&quot;, null, healAmount));</span>
+<span class="fc" id="L70">    }</span>
+
+    @Test
+    @DisplayName(&quot;Key initializes, validates getters, and enforces null guards&quot;)
+    void testKey() {
+<span class="fc" id="L75">        Key key = new Key(&quot;Master Key&quot;, &quot;Opens dungeon exit&quot;);</span>
+
+<span class="fc" id="L77">        assertEquals(&quot;Master Key&quot;, key.getName());</span>
+<span class="fc" id="L78">        assertEquals(&quot;Opens dungeon exit&quot;, key.getDescription());</span>
+<span class="fc" id="L79">        assertEquals(&quot;Master Key&quot;, key.toString());</span>
+<span class="fc" id="L80">        assertTrue(key instanceof Item);</span>
+
+<span class="pc" id="L82">        assertThrows(NullPointerException.class, () -&gt; new Key(null, &quot;Opens dungeon exit&quot;));</span>
+<span class="pc" id="L83">        assertThrows(NullPointerException.class, () -&gt; new Key(&quot;Master Key&quot;, null));</span>
+<span class="fc" id="L84">    }</span>
+
+    @Test
+    @DisplayName(&quot;QuestItem initializes, validates getters, and enforces null guards&quot;)
+    void testQuestItem() {
+<span class="fc" id="L89">        QuestItem gradebook = new QuestItem(&quot;Lost Gradebook&quot;, &quot;Contains vital course records&quot;);</span>
+
+<span class="fc" id="L91">        assertEquals(&quot;Lost Gradebook&quot;, gradebook.getName());</span>
+<span class="fc" id="L92">        assertEquals(&quot;Contains vital course records&quot;, gradebook.getDescription());</span>
+<span class="fc" id="L93">        assertEquals(&quot;Lost Gradebook&quot;, gradebook.toString());</span>
+<span class="fc" id="L94">        assertTrue(gradebook instanceof Item);</span>
+
+<span class="pc" id="L96">        assertThrows(NullPointerException.class, () -&gt; new QuestItem(null, &quot;Description&quot;));</span>
+<span class="pc" id="L97">        assertThrows(NullPointerException.class, () -&gt; new QuestItem(&quot;Lost Gradebook&quot;, null));</span>
+<span class="fc" id="L98">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

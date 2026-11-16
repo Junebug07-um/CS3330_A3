@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InteractionEngineTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.engine</a> &gt; <span class="el_source">InteractionEngineTest.java</span></div><h1>InteractionEngineTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.engine;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import com.example.haunted.events.InteractionResult;
+import com.example.haunted.model.Armor;
+import com.example.haunted.model.Direction;
+import com.example.haunted.model.Inventory;
+import com.example.haunted.model.Key;
+import com.example.haunted.model.Player;
+import com.example.haunted.model.Potion;
+import com.example.haunted.model.Quest;
+import com.example.haunted.model.QuestItem;
+import com.example.haunted.model.Room;
+import com.example.haunted.model.Weapon;
+import com.example.haunted.rules.QuestTracker;
+
+<span class="fc" id="L24">public class InteractionEngineTest {</span>
+
+    private InteractionEngine engine;
+    private Player player;
+    private Quest quest;
+    private Room room;
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L33">        engine = new InteractionEngine(new QuestTracker());</span>
+<span class="fc" id="L34">        quest = new Quest(&quot;Escape&quot;, &quot;Get out&quot;);</span>
+<span class="fc" id="L35">        room = new Room(&quot;r1&quot;, &quot;Test Room&quot;, &quot;A test room.&quot;);</span>
+<span class="fc" id="L36">        player = new Player(&quot;Hero&quot;, 50, 5, 2, new Inventory(1));</span>
+<span class="fc" id="L37">        player.setCurrentRoom(room);</span>
+<span class="fc" id="L38">    }</span>
+
+    private Room lockedRoomNorth(String requiredKey) {
+<span class="fc" id="L41">        Room target = new Room(&quot;vault&quot;, &quot;Vault&quot;, &quot;A vault.&quot;);</span>
+<span class="fc" id="L42">        target.setLocked(true, requiredKey);</span>
+<span class="fc" id="L43">        room.connect(Direction.NORTH, target);</span>
+<span class="fc" id="L44">        return target;</span>
+    }
+
+    // ---------- pickUpItem ----------
+
+    @Test
+    @DisplayName(&quot;pickUpItem moves the item to the inventory and updates the quest&quot;)
+    void testPickUpSuccess() {
+<span class="fc" id="L52">        room.addItem(new QuestItem(&quot;Lost Gradebook&quot;, &quot;The gradebook&quot;));</span>
+
+<span class="fc" id="L54">        InteractionResult r = engine.pickUpItem(player, quest, &quot;Lost Gradebook&quot;);</span>
+
+<span class="fc" id="L56">        assertTrue(r.isSuccess());</span>
+<span class="fc" id="L57">        assertTrue(player.getInventory().contains(&quot;Lost Gradebook&quot;));</span>
+<span class="fc" id="L58">        assertTrue(room.findItem(&quot;Lost Gradebook&quot;).isEmpty());</span>
+<span class="fc" id="L59">        assertTrue(quest.isGradebookRecovered());</span>
+<span class="fc" id="L60">    }</span>
+
+    @Test
+    @DisplayName(&quot;pickUpItem fails when the item is not in the room&quot;)
+    void testPickUpMissing() {
+<span class="fc" id="L65">        InteractionResult r = engine.pickUpItem(player, quest, &quot;Nothing&quot;);</span>
+
+<span class="fc" id="L67">        assertFalse(r.isSuccess());</span>
+<span class="fc" id="L68">        assertTrue(player.getInventory().getItems().isEmpty());</span>
+<span class="fc" id="L69">    }</span>
+
+    @Test
+    @DisplayName(&quot;Full inventory: pickup fails, item stays in the room, quest not updated&quot;)
+    void testPickUpFullInventory() {
+<span class="fc" id="L74">        player.getInventory().addItem(new Key(&quot;Old Key&quot;, &quot;A key&quot;));</span>
+<span class="fc" id="L75">        room.addItem(new QuestItem(&quot;Lost Gradebook&quot;, &quot;The gradebook&quot;));</span>
+
+<span class="fc" id="L77">        InteractionResult r = engine.pickUpItem(player, quest, &quot;Lost Gradebook&quot;);</span>
+
+<span class="fc" id="L79">        assertFalse(r.isSuccess());</span>
+<span class="fc" id="L80">        assertTrue(room.findItem(&quot;Lost Gradebook&quot;).isPresent());</span>
+<span class="fc" id="L81">        assertFalse(quest.isGradebookRecovered());</span>
+<span class="fc" id="L82">    }</span>
+
+    // ---------- useItem ----------
+
+    @Test
+    void testUseMissingItem() {
+<span class="fc" id="L88">        assertFalse(engine.useItem(player, &quot;Nothing&quot;).isSuccess());</span>
+<span class="fc" id="L89">    }</span>
+
+    @Test
+    @DisplayName(&quot;useItem rejects a non-potion and keeps it&quot;)
+    void testUseNonPotion() {
+<span class="fc" id="L94">        player.getInventory().addItem(new Key(&quot;Old Key&quot;, &quot;A key&quot;));</span>
+
+<span class="fc" id="L96">        InteractionResult r = engine.useItem(player, &quot;Old Key&quot;);</span>
+
+<span class="fc" id="L98">        assertFalse(r.isSuccess());</span>
+<span class="fc" id="L99">        assertTrue(player.getInventory().contains(&quot;Old Key&quot;));</span>
+<span class="fc" id="L100">    }</span>
+
+    @Test
+    @DisplayName(&quot;useItem heals the player and consumes the potion&quot;)
+    void testUsePotion() {
+<span class="fc" id="L105">        player.takeDamage(10);</span>
+<span class="fc" id="L106">        player.getInventory().addItem(new Potion(&quot;Tonic&quot;, &quot;A tonic&quot;, 5));</span>
+
+<span class="fc" id="L108">        InteractionResult r = engine.useItem(player, &quot;Tonic&quot;);</span>
+
+<span class="fc" id="L110">        assertTrue(r.isSuccess());</span>
+<span class="fc" id="L111">        assertEquals(45, player.getHealth());</span>
+<span class="fc" id="L112">        assertFalse(player.getInventory().contains(&quot;Tonic&quot;));</span>
+<span class="fc" id="L113">    }</span>
+
+    // ---------- equipItem ----------
+
+    @Test
+    void testEquipMissingItem() {
+<span class="fc" id="L119">        assertFalse(engine.equipItem(player, &quot;Nothing&quot;).isSuccess());</span>
+<span class="fc" id="L120">    }</span>
+
+    @Test
+    void testEquipWeapon() {
+<span class="fc" id="L124">        Weapon stapler = new Weapon(&quot;Stapler&quot;, &quot;Heavy&quot;, 4);</span>
+<span class="fc" id="L125">        player.getInventory().addItem(stapler);</span>
+
+<span class="fc" id="L127">        assertTrue(engine.equipItem(player, &quot;Stapler&quot;).isSuccess());</span>
+<span class="fc" id="L128">        assertSame(stapler, player.getEquippedWeapon());</span>
+<span class="fc" id="L129">        assertNull(player.getEquippedArmor());</span>
+<span class="fc" id="L130">    }</span>
+
+    @Test
+    void testEquipArmor() {
+<span class="fc" id="L134">        Armor shield = new Armor(&quot;Shield&quot;, &quot;Sturdy&quot;, 3);</span>
+<span class="fc" id="L135">        player.getInventory().addItem(shield);</span>
+
+<span class="fc" id="L137">        assertTrue(engine.equipItem(player, &quot;Shield&quot;).isSuccess());</span>
+<span class="fc" id="L138">        assertSame(shield, player.getEquippedArmor());</span>
+<span class="fc" id="L139">        assertNull(player.getEquippedWeapon());</span>
+<span class="fc" id="L140">    }</span>
+
+    @Test
+    @DisplayName(&quot;equipItem rejects items that are neither weapons nor armor&quot;)
+    void testEquipNeither() {
+<span class="fc" id="L145">        player.getInventory().addItem(new Key(&quot;Old Key&quot;, &quot;A key&quot;));</span>
+
+<span class="fc" id="L147">        assertFalse(engine.equipItem(player, &quot;Old Key&quot;).isSuccess());</span>
+<span class="fc" id="L148">        assertNull(player.getEquippedWeapon());</span>
+<span class="fc" id="L149">        assertNull(player.getEquippedArmor());</span>
+<span class="fc" id="L150">    }</span>
+
+    // ---------- unlockRoom ----------
+
+    @ParameterizedTest
+    @EnumSource(Direction.class)
+    @DisplayName(&quot;unlockRoom fails when there is no exit that way&quot;)
+    void testUnlockNoExit(Direction direction) {
+<span class="fc" id="L158">        assertFalse(engine.unlockRoom(player, direction).isSuccess());</span>
+<span class="fc" id="L159">    }</span>
+
+    @Test
+    void testUnlockAlreadyUnlocked() {
+<span class="fc" id="L163">        room.connect(Direction.NORTH, new Room(&quot;hall&quot;, &quot;Hall&quot;, &quot;A hall.&quot;));</span>
+
+<span class="fc" id="L165">        assertTrue(engine.unlockRoom(player, Direction.NORTH).isSuccess());</span>
+<span class="fc" id="L166">    }</span>
+
+    @Test
+    void testUnlockRoomWithNoRequiredKey() {
+<span class="fc" id="L170">        Room target = lockedRoomNorth(null);</span>
+
+<span class="fc" id="L172">        assertFalse(engine.unlockRoom(player, Direction.NORTH).isSuccess());</span>
+<span class="fc" id="L173">        assertTrue(target.isLocked());</span>
+<span class="fc" id="L174">    }</span>
+
+    @Test
+    void testUnlockWithoutKey() {
+<span class="fc" id="L178">        Room target = lockedRoomNorth(&quot;Archive Key&quot;);</span>
+
+<span class="fc" id="L180">        assertFalse(engine.unlockRoom(player, Direction.NORTH).isSuccess());</span>
+<span class="fc" id="L181">        assertTrue(target.isLocked());</span>
+<span class="fc" id="L182">    }</span>
+
+    @Test
+    @DisplayName(&quot;An item with the key's name that is not a Key does not unlock&quot;)
+    void testUnlockWithNonKeyItem() {
+<span class="fc" id="L187">        Room target = lockedRoomNorth(&quot;Archive Key&quot;);</span>
+<span class="fc" id="L188">        player.getInventory().addItem(new QuestItem(&quot;Archive Key&quot;, &quot;Not a key&quot;));</span>
+
+<span class="fc" id="L190">        assertFalse(engine.unlockRoom(player, Direction.NORTH).isSuccess());</span>
+<span class="fc" id="L191">        assertTrue(target.isLocked());</span>
+<span class="fc" id="L192">    }</span>
+
+    @Test
+    void testUnlockSuccess() {
+<span class="fc" id="L196">        Room target = lockedRoomNorth(&quot;Archive Key&quot;);</span>
+<span class="fc" id="L197">        player.getInventory().addItem(new Key(&quot;Archive Key&quot;, &quot;A key&quot;));</span>
+
+<span class="fc" id="L199">        assertTrue(engine.unlockRoom(player, Direction.NORTH).isSuccess());</span>
+<span class="fc" id="L200">        assertFalse(target.isLocked());</span>
+<span class="fc" id="L201">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

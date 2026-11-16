@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>QuestTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">QuestTest.java</span></div><h1>QuestTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.model;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+<span class="fc" id="L11">public class QuestTest {</span>
+
+    @Test
+    @DisplayName(&quot;Quest constructor initializes default status and null validation&quot;)
+    void testQuestInitialization() {
+<span class="fc" id="L16">        Quest quest = new Quest(&quot;Main Quest&quot;, &quot;Survive and escape&quot;);</span>
+
+<span class="fc" id="L18">        assertEquals(&quot;Main Quest&quot;, quest.getName());</span>
+<span class="fc" id="L19">        assertEquals(&quot;Survive and escape&quot;, quest.getDescription());</span>
+<span class="fc" id="L20">        assertEquals(QuestStatus.NOT_STARTED, quest.getStatus());</span>
+<span class="fc" id="L21">        assertFalse(quest.isGradebookRecovered());</span>
+<span class="fc" id="L22">        assertFalse(quest.isPhantomDefeated());</span>
+
+<span class="pc" id="L24">        assertThrows(NullPointerException.class, () -&gt; new Quest(null, &quot;Description&quot;));</span>
+<span class="pc" id="L25">        assertThrows(NullPointerException.class, () -&gt; new Quest(&quot;Name&quot;, null));</span>
+<span class="fc" id="L26">    }</span>
+
+    @Test
+    @DisplayName(&quot;Quest marks gradebook recovered and phantom defeated flags&quot;)
+    void testQuestFlagsAndStatus() {
+<span class="fc" id="L31">        Quest quest = new Quest(&quot;Escape&quot;, &quot;Description&quot;);</span>
+
+<span class="fc" id="L33">        quest.markGradebookRecovered();</span>
+<span class="fc" id="L34">        assertTrue(quest.isGradebookRecovered());</span>
+
+<span class="fc" id="L36">        quest.markPhantomDefeated();</span>
+<span class="fc" id="L37">        assertTrue(quest.isPhantomDefeated());</span>
+<span class="fc" id="L38">    }</span>
+
+    @Test
+    @DisplayName(&quot;QuestStatus enum values and valueOf coverage&quot;)
+    void testQuestStatusEnum() {
+<span class="fc" id="L43">        assertEquals(QuestStatus.NOT_STARTED, QuestStatus.valueOf(&quot;NOT_STARTED&quot;));</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        assertTrue(QuestStatus.values().length &gt; 0);</span>
+<span class="fc" id="L45">    }</span>
+    
+    @Test
+    @DisplayName(&quot;updateStatus with nothing completed leaves the status NOT_STARTED&quot;)
+    void testUpdateStatusNothingDone() {
+<span class="fc" id="L50">        Quest quest = new Quest(&quot;Escape&quot;, &quot;Get out&quot;);</span>
+
+<span class="fc" id="L52">        quest.updateStatus();</span>
+
+<span class="fc" id="L54">        assertEquals(QuestStatus.NOT_STARTED, quest.getStatus());</span>
+<span class="fc" id="L55">    }</span>
+    
+    @Test
+    @DisplayName(&quot;Completing a single objective sets the status to IN_PROGRESS&quot;)
+    void testSingleObjectiveSetsInProgress() {
+<span class="fc" id="L60">        Quest gradebookFirst = new Quest(&quot;Escape&quot;, &quot;Get out&quot;);</span>
+<span class="fc" id="L61">        gradebookFirst.markGradebookRecovered();</span>
+<span class="fc" id="L62">        assertEquals(QuestStatus.IN_PROGRESS, gradebookFirst.getStatus());</span>
+
+<span class="fc" id="L64">        Quest phantomFirst = new Quest(&quot;Escape&quot;, &quot;Get out&quot;);</span>
+<span class="fc" id="L65">        phantomFirst.markPhantomDefeated();</span>
+<span class="fc" id="L66">        assertEquals(QuestStatus.IN_PROGRESS, phantomFirst.getStatus());</span>
+<span class="fc" id="L67">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TrapResolverTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.rules</a> &gt; <span class="el_source">TrapResolverTest.java</span></div><h1>TrapResolverTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.rules;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import com.example.haunted.events.InteractionResult;
+import com.example.haunted.model.Inventory;
+import com.example.haunted.model.Player;
+import com.example.haunted.model.Trap;
+import com.example.haunted.model.TrapType;
+
+<span class="fc" id="L19">public class TrapResolverTest {</span>
+
+    private TrapResolver resolver;
+    private Player player;
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L26">        resolver = new TrapResolver();</span>
+<span class="fc" id="L27">        player = new Player(&quot;Hero&quot;, 100, 10, 5, new Inventory(5));</span>
+<span class="fc" id="L28">    }</span>
+
+    @Test
+    @DisplayName(&quot;Null trap returns un-triggered interaction result&quot;)
+    void testResolveNullTrap() {
+<span class="fc" id="L33">        InteractionResult result = resolver.resolveTrap(player, null);</span>
+<span class="fc" id="L34">        assertFalse(result.isSuccess());</span>
+<span class="fc" id="L35">        assertEquals(&quot;No trap was triggered.&quot;, result.getMessage());</span>
+<span class="fc" id="L36">        assertEquals(100, player.getHealth());</span>
+<span class="fc" id="L37">    }</span>
+
+    @Test
+    @DisplayName(&quot;Disarmed trap returns un-triggered interaction result&quot;)
+    void testResolveDisarmedTrap() {
+<span class="fc" id="L42">        Trap trap = new Trap(&quot;Exposed Wire&quot;, TrapType.ELECTRIC, 15, false, true);</span>
+<span class="fc" id="L43">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L45">        assertFalse(result.isSuccess());</span>
+<span class="fc" id="L46">        assertEquals(&quot;No trap was triggered.&quot;, result.getMessage());</span>
+<span class="fc" id="L47">        assertEquals(100, player.getHealth());</span>
+<span class="fc" id="L48">    }</span>
+
+    @Test
+    @DisplayName(&quot;Armed one-time trigger trap deals damage and disarms itself&quot;)
+    void testResolveOneTimeArmedTrap() {
+<span class="fc" id="L53">        Trap trap = new Trap(&quot;Bursting Pipe&quot;, TrapType.STEAM, 25, true, true);</span>
+<span class="fc" id="L54">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L56">        assertTrue(result.isSuccess());</span>
+<span class="fc" id="L57">        assertEquals(&quot;Trap 'Bursting Pipe' triggered for 25 damage.&quot;, result.getMessage());</span>
+<span class="fc" id="L58">        assertEquals(75, player.getHealth());</span>
+<span class="fc" id="L59">        assertFalse(trap.isArmed());</span>
+<span class="fc" id="L60">    }</span>
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 10, 30})
+    @DisplayName(&quot;Armed recurring trap deals damage but remains armed&quot;)
+    void testResolveRecurringArmedTrap(int damage) {
+<span class="fc" id="L66">        Trap trap = new Trap(&quot;Live Conduit&quot;, TrapType.ELECTRIC, damage, true, false);</span>
+<span class="fc" id="L67">        InteractionResult result = resolver.resolveTrap(player, trap);</span>
+
+<span class="fc" id="L69">        assertTrue(result.isSuccess());</span>
+<span class="fc" id="L70">        assertEquals(String.format(&quot;Trap 'Live Conduit' triggered for %d damage.&quot;, damage), result.getMessage());</span>
+<span class="fc" id="L71">        assertEquals(100 - damage, player.getHealth());</span>
+<span class="fc" id="L72">        assertTrue(trap.isArmed());</span>
+<span class="fc" id="L73">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

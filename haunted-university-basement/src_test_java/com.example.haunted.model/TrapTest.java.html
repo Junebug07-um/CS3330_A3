@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TrapTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.model</a> &gt; <span class="el_source">TrapTest.java</span></div><h1>TrapTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.model;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+<span class="fc" id="L11">public class TrapTest {</span>
+
+    @Test
+    @DisplayName(&quot;Trap instantiates and returns correct attributes&quot;)
+    void testTrapAttributes() {
+<span class="fc" id="L16">        Trap trap = new Trap(&quot;Live Wire&quot;, TrapType.ELECTRIC, 20, true, true);</span>
+
+<span class="fc" id="L18">        assertEquals(&quot;Live Wire&quot;, trap.getName());</span>
+<span class="fc" id="L19">        assertEquals(TrapType.ELECTRIC, trap.getType());</span>
+<span class="fc" id="L20">        assertEquals(20, trap.getDamage());</span>
+<span class="fc" id="L21">        assertTrue(trap.isArmed());</span>
+<span class="fc" id="L22">        assertTrue(trap.isOneTimeTrigger());</span>
+<span class="fc" id="L23">    }</span>
+
+    @Test
+    @DisplayName(&quot;Trap disarm sets armed flag to false&quot;)
+    void testDisarm() {
+<span class="fc" id="L28">        Trap trap = new Trap(&quot;Hot Steam Vent&quot;, TrapType.STEAM, 5, true, false);</span>
+<span class="fc" id="L29">        assertTrue(trap.isArmed());</span>
+<span class="fc" id="L30">        trap.disarm();</span>
+<span class="fc" id="L31">        assertFalse(trap.isArmed());</span>
+<span class="fc" id="L32">    }</span>
+
+    @Test
+    @DisplayName(&quot;Trap constructor rejects null name or type&quot;)
+    void testNullConstructorArguments() {
+<span class="pc" id="L37">        assertThrows(NullPointerException.class, () -&gt; new Trap(null, TrapType.STEAM, 10, true, true));</span>
+<span class="pc" id="L38">        assertThrows(NullPointerException.class, () -&gt; new Trap(&quot;Steam Vent&quot;, null, 10, true, true));</span>
+<span class="fc" id="L39">    }</span>
+
+    @Test
+    @DisplayName(&quot;TrapType enum values and valueOf coverage&quot;)
+    void testTrapTypeEnumCoverage() {
+<span class="fc" id="L44">        assertEquals(TrapType.ELECTRIC, TrapType.valueOf(&quot;ELECTRIC&quot;));</span>
+<span class="fc" id="L45">        assertEquals(TrapType.STEAM, TrapType.valueOf(&quot;STEAM&quot;));</span>
+<span class="fc" id="L46">        assertEquals(2, TrapType.values().length);</span>
+<span class="fc" id="L47">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

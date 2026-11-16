@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>QuestTrackerTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.rules</a> &gt; <span class="el_source">QuestTrackerTest.java</span></div><h1>QuestTrackerTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.rules;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collections;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import com.example.haunted.model.Item;
+import com.example.haunted.model.Monster;
+import com.example.haunted.model.Quest;
+import com.example.haunted.model.QuestItem;
+
+<span class="fc" id="L19">public class QuestTrackerTest {</span>
+
+    private QuestTracker tracker;
+    private Quest quest;
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L26">        tracker = new QuestTracker();</span>
+<span class="fc" id="L27">        quest = new Quest(&quot;Escape Basement&quot;, &quot;Recover gradebook and defeat the phantom&quot;);</span>
+<span class="fc" id="L28">    }</span>
+
+    @Test
+    @DisplayName(&quot;Null item does not mark gradebook recovered&quot;)
+    void testNullItemDoesNotAdvanceQuest() {
+<span class="fc" id="L33">        tracker.updateQuestForItem(quest, null);</span>
+<span class="fc" id="L34">        assertFalse(quest.isGradebookRecovered());</span>
+<span class="fc" id="L35">    }</span>
+
+    @ParameterizedTest
+    @ValueSource(strings = {&quot;Key&quot;, &quot;Health Potion&quot;, &quot;Old Textbook&quot;})
+    @DisplayName(&quot;Non-target items do not mark gradebook recovered&quot;)
+    void testNonTargetItemsDoNotAdvanceQuest(String itemName) {
+<span class="fc" id="L41">        Item item = new QuestItem(itemName, &quot;A regular item&quot;);</span>
+<span class="fc" id="L42">        tracker.updateQuestForItem(quest, item);</span>
+<span class="fc" id="L43">        assertFalse(quest.isGradebookRecovered());</span>
+<span class="fc" id="L44">    }</span>
+
+    @ParameterizedTest
+    @ValueSource(strings = {&quot;Lost Gradebook&quot;, &quot;lost gradebook&quot;, &quot;LOST GRADEBOOK&quot;})
+    @DisplayName(&quot;Recovering Lost Gradebook with case insensitivity updates quest&quot;)
+    void testLostGradebookRecoversQuest(String itemName) {
+<span class="fc" id="L50">        Item gradebook = new QuestItem(itemName, &quot;The legendary book&quot;);</span>
+<span class="fc" id="L51">        tracker.updateQuestForItem(quest, gradebook);</span>
+<span class="fc" id="L52">        assertTrue(quest.isGradebookRecovered());</span>
+<span class="fc" id="L53">    }</span>
+
+    @Test
+    @DisplayName(&quot;Null monster does not mark phantom defeated&quot;)
+    void testNullMonsterDoesNotAdvanceQuest() {
+<span class="fc" id="L58">        tracker.updateQuestForMonster(quest, null);</span>
+<span class="fc" id="L59">        assertFalse(quest.isPhantomDefeated());</span>
+<span class="fc" id="L60">    }</span>
+
+    @Test
+    @DisplayName(&quot;Living Final Exam Phantom does not mark phantom defeated&quot;)
+    void testLivingPhantomDoesNotAdvanceQuest() {
+<span class="fc" id="L65">        Monster phantom = new Monster(&quot;Final Exam Phantom&quot;, 100, 20, 5, Collections.emptyList());</span>
+<span class="fc" id="L66">        tracker.updateQuestForMonster(quest, phantom);</span>
+<span class="fc" id="L67">        assertFalse(quest.isPhantomDefeated());</span>
+<span class="fc" id="L68">    }</span>
+
+    @Test
+    @DisplayName(&quot;Defeating different monster does not mark phantom defeated&quot;)
+    void testDefeatingOtherMonsterDoesNotAdvanceQuest() {
+<span class="fc" id="L73">        Monster ta = new Monster(&quot;Sleep-Deprived TA&quot;, 30, 10, 2, Collections.emptyList());</span>
+<span class="fc" id="L74">        ta.takeDamage(30);</span>
+<span class="fc" id="L75">        assertFalse(ta.isAlive());</span>
+
+<span class="fc" id="L77">        tracker.updateQuestForMonster(quest, ta);</span>
+<span class="fc" id="L78">        assertFalse(quest.isPhantomDefeated());</span>
+<span class="fc" id="L79">    }</span>
+
+    @ParameterizedTest
+    @ValueSource(strings = {&quot;Final Exam Phantom&quot;, &quot;final exam phantom&quot;, &quot;FINAL EXAM PHANTOM&quot;})
+    @DisplayName(&quot;Defeating Final Exam Phantom marks phantom defeated&quot;)
+    void testDefeatedFinalExamPhantomAdvancesQuest(String monsterName) {
+<span class="fc" id="L85">        Monster phantom = new Monster(monsterName, 100, 20, 5, Collections.emptyList());</span>
+<span class="fc" id="L86">        phantom.takeDamage(100);</span>
+<span class="fc" id="L87">        assertFalse(phantom.isAlive());</span>
+
+<span class="fc" id="L89">        tracker.updateQuestForMonster(quest, phantom);</span>
+<span class="fc" id="L90">        assertTrue(quest.isPhantomDefeated());</span>
+<span class="fc" id="L91">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>

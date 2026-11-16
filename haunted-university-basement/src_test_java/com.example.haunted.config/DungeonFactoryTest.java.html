@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DungeonFactoryTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</a> &gt; <a href="../../index.html" class="el_group">haunted-university-basement</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">com.example.haunted.config</a> &gt; <span class="el_source">DungeonFactoryTest.java</span></div><h1>DungeonFactoryTest.java</h1><pre class="source lang-java linenums">package com.example.haunted.config;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.example.haunted.engine.GameEngine;
+import com.example.haunted.model.Direction;
+import com.example.haunted.model.Player;
+import com.example.haunted.model.Room;
+
+<span class="fc" id="L14">public class DungeonFactoryTest {</span>
+
+    private GameEngine game;
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L20">        game = DungeonFactory.createGame();</span>
+<span class="fc" id="L21">    }</span>
+
+    @Test
+    void testStartState() {
+<span class="fc" id="L25">        Player p = game.getPlayer();</span>
+<span class="fc" id="L26">        assertEquals(&quot;Student Explorer&quot;, p.getName());</span>
+<span class="fc" id="L27">        assertEquals(50, p.getHealth());</span>
+<span class="fc" id="L28">        assertEquals(8, p.getInventory().getCapacity());</span>
+<span class="fc" id="L29">        assertEquals(&quot;stairwell&quot;, game.getCurrentRoom().getId());</span>
+<span class="fc" id="L30">        assertFalse(game.isGameWon());</span>
+<span class="fc" id="L31">    }</span>
+
+    @Test
+    void testWorldLayout() {
+<span class="fc" id="L35">        Room hall = game.getCurrentRoom().getExit(Direction.EAST);</span>
+<span class="fc" id="L36">        assertEquals(&quot;lectureHall&quot;, hall.getId());</span>
+<span class="fc" id="L37">        assertTrue(hall.getExit(Direction.NORTH).isLocked());     // exam archive</span>
+<span class="fc" id="L38">        assertNotNull(hall.getExit(Direction.SOUTH).getTrap());   // broken elevator</span>
+<span class="fc" id="L39">        Room vault = hall.getExit(Direction.NORTH).getExit(Direction.EAST);</span>
+<span class="fc" id="L40">        assertTrue(vault.getExit(Direction.NORTH).isLocked());    // final chamber</span>
+<span class="fc" id="L41">        assertTrue(vault.findItem(&quot;Vault Key&quot;).isPresent());</span>
+<span class="fc" id="L42">    }</span>
+
+    @Test
+    void testGamesAreIndependent() {
+<span class="fc" id="L46">        GameEngine other = DungeonFactory.createGame();</span>
+<span class="fc" id="L47">        game.getPlayer().takeDamage(10);</span>
+<span class="fc" id="L48">        assertEquals(50, other.getPlayer().getHealth());</span>
+<span class="fc" id="L49">    }</span>
+    
+    @Test
+    @DisplayName(&quot;Every room has the expected way back&quot;)
+    void testReverseExits() {
+<span class="fc" id="L54">        Room stairwell = game.getCurrentRoom();</span>
+<span class="fc" id="L55">        Room hall = stairwell.getExit(Direction.EAST);</span>
+<span class="fc" id="L56">        Room lab = hall.getExit(Direction.EAST);</span>
+<span class="fc" id="L57">        Room elevator = hall.getExit(Direction.SOUTH);</span>
+<span class="fc" id="L58">        Room archive = hall.getExit(Direction.NORTH);</span>
+<span class="fc" id="L59">        Room server = lab.getExit(Direction.NORTH);</span>
+<span class="fc" id="L60">        Room vault = server.getExit(Direction.EAST);</span>
+<span class="fc" id="L61">        Room finalChamber = vault.getExit(Direction.NORTH);</span>
+
+<span class="fc" id="L63">        assertSame(stairwell, hall.getExit(Direction.WEST));</span>
+<span class="fc" id="L64">        assertSame(hall, lab.getExit(Direction.WEST));</span>
+<span class="fc" id="L65">        assertSame(hall, elevator.getExit(Direction.NORTH));</span>
+<span class="fc" id="L66">        assertSame(hall, archive.getExit(Direction.SOUTH));</span>
+<span class="fc" id="L67">        assertSame(lab, server.getExit(Direction.SOUTH));</span>
+<span class="fc" id="L68">        assertSame(server, vault.getExit(Direction.SOUTH));</span>
+<span class="fc" id="L69">        assertSame(vault, finalChamber.getExit(Direction.SOUTH));</span>
+<span class="fc" id="L70">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span>haunted-university-basement (1) (Nov 16, 2026 1:12:28 PM)</div></body></html>
