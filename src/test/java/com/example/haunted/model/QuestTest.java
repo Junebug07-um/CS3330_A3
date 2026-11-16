@@ -43,4 +43,27 @@ public class QuestTest {
         assertEquals(QuestStatus.NOT_STARTED, QuestStatus.valueOf("NOT_STARTED"));
         assertTrue(QuestStatus.values().length > 0);
     }
+    
+    @Test
+    @DisplayName("updateStatus with nothing completed leaves the status NOT_STARTED")
+    void testUpdateStatusNothingDone() {
+        Quest quest = new Quest("Escape", "Get out");
+
+        quest.updateStatus();
+
+        assertEquals(QuestStatus.NOT_STARTED, quest.getStatus());
+    }
+    
+    @Test
+    @DisplayName("Completing a single objective sets the status to IN_PROGRESS")
+    void testSingleObjectiveSetsInProgress() {
+        Quest gradebookFirst = new Quest("Escape", "Get out");
+        gradebookFirst.markGradebookRecovered();
+        assertEquals(QuestStatus.IN_PROGRESS, gradebookFirst.getStatus());
+
+        Quest phantomFirst = new Quest("Escape", "Get out");
+        phantomFirst.markPhantomDefeated();
+        assertEquals(QuestStatus.IN_PROGRESS, phantomFirst.getStatus());
+    }
+
 }
